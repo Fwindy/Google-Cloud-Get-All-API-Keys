@@ -26,7 +26,7 @@ for PROJECT in $PROJECTS; do
         # --api-targets=service=generativelanguage.googleapis.com 对应控制台的 "限制密钥" -> 特定 API
         gcloud services api-keys update "$KEY_NAME" \
             --project="$PROJECT" \
-            --api-targets=service=generativelanguage.googleapis.com \
+            --api-target=service=generativelanguage.googleapis.com \
             --quiet
             
         if [ $? -eq 0 ]; then
