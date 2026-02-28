@@ -3,6 +3,11 @@
 # 仅允许非交互式运行，避免中途弹窗中断
 export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
+# 初始化统计变量
+SUCCESS_COUNT=0
+FAILURE_COUNT=0
+TOTAL_KEYS=0
+
 echo "正在获取当前账号下的项目列表..."
 PROJECTS=$(gcloud projects list --format="value(projectId)")
 
@@ -19,6 +24,9 @@ for PROJECT in $PROJECTS; do
     fi
     
     for KEY_NAME in $API_KEYS; do
+        # 统计发现的 Key 总数
+        ((TOTAL_KEYS++))
+        
         echo "  -> 发现 API Key: $KEY_NAME"
         echo "     正在应用限制规则: 仅限 Generative Language API..."
         
@@ -31,11 +39,18 @@ for PROJECT in $PROJECTS; do
             
         if [ $? -eq 0 ]; then
             echo "     [成功] 权限已成功收缩。"
+            ((SUCCESS_COUNT++))
         else
             echo "     [失败] 无法更新该密钥，请检查您的 IAM 权限 (需要 API Keys Admin 权限)。"
+            ((FAILURE_COUNT++))
         fi
     done
 done
 
 echo "========================================="
 echo "执行完毕：所有项目的 API Keys 已遍历并处理完成。"
+echo "【执行统计】"
+echo "  - 发现 API Key 总数: $TOTAL_KEYS"
+echo "  - 成功限制个数: $SUCCESS_COUNT"
+echo "  - 失败限制个数: $FAILURE_COUNT"
+echo "========================================="
